@@ -1,0 +1,26 @@
+[
+    {
+        "model": "levelupapi.game",
+        "pk": 1,
+        "fields": {
+            "title": "Catan",
+            "maker": "Klaus Teuber", 
+            "num_of_players": "two - four", 
+            "skill_level": "medium", 
+            "game_type": 1, 
+            "gamer": 1
+        }
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 2,
+        "fields": {
+            "title": "Wingspan",
+            "maker": "Stonemaier Games", 
+            "num_of_players": "one - five", 
+            "skill_level": "medium", 
+            "game_type": 1, 
+            "gamer": 1
+        }
+    }
+]
