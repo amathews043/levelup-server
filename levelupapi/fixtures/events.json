@@ -1,0 +1,24 @@
+[
+    {
+        "model": "levelupapi.event",
+        "pk": 1,
+        "fields": {
+            "description": "Come hang out and play Catan.",
+            "date": "2023-05-05 06:00", 
+            "game": 1, 
+            "organizer": 1, 
+            "attendees": [1 ]
+        }
+    },
+    {
+        "model": "levelupapi.event",
+        "pk": 2,
+        "fields": {
+            "description": "Come hang out and play Wingspan.",
+            "date": "2023-05-06 06:00", 
+            "game": 2, 
+            "organizer": 1, 
+            "attendees": [1 ]
+        }
+    }
+]
