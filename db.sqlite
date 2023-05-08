@@ -3,4 +3,6 @@ SELECT * FROM authtoken_token;
 SELECT * FROM levelupapi_gamer;
 SELECT * FROM levelupapi_event
 
-SELECT * FROM levelupapi_event
+SELECT * FROM levelupapi_game
+
+DELETE FROM levelupapi_game WHERE id = 4
