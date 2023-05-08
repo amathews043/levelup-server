@@ -68,7 +68,7 @@ class EventView(ViewSet):
         event_game = Game.objects.get(pk=request.data['game'])
         event.game = event_game
 
-        event_organizer = Gamer.objects.get(pk=request.data['organizer'])
+        event_organizer = Gamer.objects.get(user=request.auth.user)
         event.organizer = event_organizer
 
         event.save()
