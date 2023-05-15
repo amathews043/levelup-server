@@ -16,9 +16,12 @@ class EventView(ViewSet):
         Returns:
             Response -- JSON serialized event 
         """
-        event = Event.objects.get(pk=pk)
-        serializer = eventSerializer(event)
-        return Response(serializer.data)
+        try: 
+            event = Event.objects.get(pk=pk)
+            serializer = eventSerializer(event)
+            return Response(serializer.data)
+        except Event.DoesNotExist as ex: 
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
 
     def list(self, request):
