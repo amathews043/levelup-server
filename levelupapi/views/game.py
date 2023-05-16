@@ -6,6 +6,7 @@ from rest_framework import serializers, status
 from levelupapi.models import Game, Gamer, GameType
 from django.db.models import Count
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 
 class GameView(ViewSet):
     """Level up game  view"""
@@ -50,26 +51,19 @@ class GameView(ViewSet):
             
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data)
-    
+
+# this will replace the previous create method
     def create(self, request):
         """Handle POST operations
 
-        Returns
-        Response -- JSON serialized game instance
+        Returns:
+            Response -- JSON serialized game instance
         """
         gamer = Gamer.objects.get(user=request.auth.user)
-        game_type = GameType.objects.get(pk=request.data["game_type"])
-
-        game = Game.objects.create(
-            title=request.data["title"],
-            maker=request.data["maker"],
-            num_of_players=request.data["number_of_players"],
-            skill_level=request.data["skill_level"],
-            gamer=gamer,
-            game_type=game_type
-        )
-        serializer = GameSerializer(game)
-        return Response(serializer.data)
+        serializer = CreateGameSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(gamer=gamer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     def update(self, request, pk):
         """Handle PUT requests for a game
@@ -107,3 +101,8 @@ class GameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'maker', 'num_of_players', 'skill_level', 'game_type', 
         'gamer', 'event_count', 'user_event_count',)
         depth = 1
+
+class CreateGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ['id', 'title', 'maker', 'num_of_players', 'skill_level', 'game_type']
