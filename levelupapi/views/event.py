@@ -6,6 +6,7 @@ from rest_framework import serializers, status
 from levelupapi.models import Event, Gamer, Game
 from rest_framework.decorators import action
 from django.db.models import Count
+from django.db.models import Q
 
 
 class EventView(ViewSet):
@@ -31,17 +32,25 @@ class EventView(ViewSet):
         Returns:
             Response -- JSON serialized list of event 
         """
-        events = Event.objects.annotate(attendee_count=Count('attendees'))
-
         gamer = Gamer.objects.get(user=request.auth.user)
+        
+        events = Event.objects.annotate(
+            attendee_count=Count('attendees'), 
+            joined=Count(
+                'attendees',
+                filter=Q(attendees=gamer)
+            )
+        )
 
         if "game" in request.query_params:
             events = events.filter(game = request.query_params["game"])
 
-        # Set the `joined` property on every event
-        for event in events:
-            # Check to see if the gamer is in the attendees list on the event
-            event.joined = gamer in event.attendees.all()
+    # Note: This is now happening through the annotate. We are checking with the Q function to see if any of the attendees is the game. 
+    # This is faster amd more efficient than the loop shown below. 
+        # # Set the `joined` property on every event
+        # for event in events:
+        #     # Check to see if the gamer is in the attendees list on the event
+        #     event.joined = gamer in event.attendees.all()
 
         serializer = eventSerializer(events, many=True)
         return Response(serializer.data)
