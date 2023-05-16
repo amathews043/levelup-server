@@ -62,17 +62,11 @@ class EventView(ViewSet):
         """
 
         organizer = Gamer.objects.get(user=request.auth.user)
-        game = Game.objects.get(pk=request.data['game'])
 
-        event = Event.objects.create(
-            description = request.data['description'], 
-            date = request.data['date'], 
-            organizer = organizer, 
-            game = game, 
-        )
-        event.attendees.set([request.auth.user.id])
-        serializer = eventSerializer(event)
-        return Response(serializer.data)
+        serializer = createEventSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(organizer=organizer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     def update(self, request, pk=None):
         """Handle PUT requests for a game
@@ -128,3 +122,8 @@ class eventSerializer(serializers.ModelSerializer):
         model = Event
         fields = ('id', 'description', 'date', 'game', 'organizer', 'attendees', 'joined', 'attendee_count')
         depth = 1
+
+class createEventSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Event
+        fields = ('id', 'description', 'date', 'game', )
