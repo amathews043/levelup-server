@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 from levelupapi.models import Game, Gamer, GameType
 from django.db.models import Count
+from django.db.models import Q
 
 class GameView(ViewSet):
     """Level up game  view"""
@@ -15,8 +16,15 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized game 
         """
+
+        gamer = Gamer.objects.get(user=request.auth.user)
+        
         try:
-            game = Game.objects.get(pk=pk)
+            game = Game.objects.annotate(
+                event_count=Count('EventsPlayed'),
+                user_event_count=Count(
+                'EventsPlayed', 
+                filter=Q(EventsPlayed__organizer=gamer))).get(pk=pk)
             serializer = GameSerializer(game)
             return Response(serializer.data)
         except Game.DoesNotExist as ex:
@@ -28,7 +36,13 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized list of games
         """
-        games = Game.objects.annotate(event_count=Count('EventsPlayed'))
+        gamer = Gamer.objects.get(user=request.auth.user)
+
+        games = Game.objects.annotate(
+            event_count=Count('EventsPlayed'),
+            user_event_count=Count(
+                'EventsPlayed', 
+                filter=Q(EventsPlayed__organizer=gamer)))
 
         game_type = request.query_params.get('type', None)
         if game_type is not None:
@@ -85,9 +99,11 @@ class GameView(ViewSet):
 
 class GameSerializer(serializers.ModelSerializer):
     event_count = serializers.IntegerField(default=None)
+    user_event_count = serializers.IntegerField(default=None)
     """JSON serializer for games
     """
     class Meta:
         model = Game
-        fields = ('id', 'title', 'maker', 'num_of_players', 'skill_level', 'game_type', 'gamer', 'event_count')
+        fields = ('id', 'title', 'maker', 'num_of_players', 'skill_level', 'game_type', 
+        'gamer', 'event_count', 'user_event_count',)
         depth = 1
